@@ -7,41 +7,5 @@
     "type": "resource",
     "tags": ["networking", "TCP/IP", "OSI", "protocols"],
     "status": "live"
-  },
-  {
-    "title": "Bits to Bandwidth",
-    "slug": "bits-to-bandwidth",
-    "description": "Computer Networks from the ground up — slides, PDFs, and reference textbooks.",
-    "topic": "networking",
-    "type": "course",
-    "tags": ["networking", "TCP/IP", "OSI", "protocols"],
-    "status": "live"
-  },
-  {
-    "title": "Bits to Bandwidth",
-    "slug": "bits-to-bandwidth",
-    "description": "Computer Networks from the ground up — slides, PDFs, and reference textbooks.",
-    "topic": "networking",
-    "type": "course",
-    "tags": ["networking", "TCP/IP", "OSI", "protocols"],
-    "status": "live"
-  },
-  {
-    "title": "Bits to Bandwidth",
-    "slug": "bits-to-bandwidth",
-    "description": "Computer Networks from the ground up — slides, PDFs, and reference textbooks.",
-    "topic": "networking",
-    "type": "course",
-    "tags": ["networking", "TCP/IP", "OSI", "protocols"],
-    "status": "live"
-  },
-  {
-    "title": "Bits to Bandwidth",
-    "slug": "bits-to-bandwidth",
-    "description": "Computer Networks from the ground up — slides, PDFs, and reference textbooks.",
-    "topic": "networking",
-    "type": "course",
-    "tags": ["networking", "TCP/IP", "OSI", "protocols"],
-    "status": "live"
   }
 ]
