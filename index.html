@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>edu · 5pyd3r.org</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="noise"></div>
+
+  <div class="container">
+
+    <header>
+      <div class="breadcrumb">
+        <a href="https://5pyd3r.org" target="_blank" rel="noopener">5pyd3r.org</a>
+        <span class="crumb-sep">/</span>
+        <span class="crumb-current">edu</span>
+      </div>
+      <h1 class="title">Knowledge Base</h1>
+      <p class="subtitle">Structured resources on technical subjects — built to learn from, not just link to.</p>
+      <div class="controls">
+        <input type="text" id="search" placeholder="search topics, tags..." autocomplete="off" spellcheck="false" />
+        <div class="filter-group" id="topic-filters">
+          <button class="filter-btn active" data-topic="all">all</button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div id="card-grid"></div>
+      <div id="empty-state" class="empty-state hidden">nothing found.</div>
+    </main>
+
+    <footer>
+      <span>© 2026 · <a href="https://5pyd3r.org" target="_blank" rel="noopener">5pyd3r.org</a></span>
+      <span class="fsep">·</span>
+      <span><a href="https://github.com/3rr0r-505" target="_blank" rel="noopener">github/3rr0r-505</a></span>
+      <span class="fsep">·</span>
+      <span id="entry-count"></span>
+    </footer>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
