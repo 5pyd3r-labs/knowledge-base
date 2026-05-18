@@ -177,9 +177,9 @@ main { flex: 1; }
 #card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-auto-rows: 1fr;
   gap: 16px;
   margin-bottom: 64px;
-  align-items: stretch;
 }
 
 /* ── CARD ── */
