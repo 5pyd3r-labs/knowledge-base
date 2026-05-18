@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>5pyD3R · NITJ InfoSec Library</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f5f2ec;
+  --surface: #ffffff;
+  --surface2: #f0ede7;
+  --border: #e0dbd2;
+  --border-dark: #c8c2b8;
+  --text: #1a1714;
+  --text-muted: #6b6560;
+  --text-dim: #a09890;
+  --ink: #1a1714;
+  --red: #c0392b;
+  --red-bg: #fdf0ee;
+  --red-border: #f0c4be;
+  --blue: #1a4f8a;
+  --blue-bg: #eef3fa;
+  --blue-border: #b8cceb;
+  --green: #1a6b3a;
+  --green-bg: #eef7f1;
+  --green-border: #b8dfc6;
+  --amber: #7a4800;
+  --amber-bg: #fdf4e7;
+  --amber-border: #f0d8a8;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'IBM Plex Sans', sans-serif;
+}
+
+html { font-size: 15px; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-weight: 300;
+  min-height: 100vh;
+  padding: 0;
+  line-height: 1.6;
+}
+
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 3rem 2rem 6rem;
+}
+
+/* ── HEADER ── */
+header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  gap: 2rem;
+  padding-bottom: 2rem;
+  margin-bottom: 2.5rem;
+  border-bottom: 2px solid var(--ink);
+}
+
+.header-left {}
+
+.site-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+}
+
+h1 {
+  font-family: var(--mono);
+  font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--ink);
+}
+
+h1 em {
+  font-style: normal;
+  background: var(--ink);
+  color: var(--bg);
+  padding: 0 6px;
+}
+
+.header-desc {
+  margin-top: 1rem;
+  font-size: 13px;
+  color: var(--text-muted);
+  max-width: 480px;
+  line-height: 1.7;
+}
+
+.header-stats {
+  text-align: right;
+}
+
+.stat-block {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 2;
+  letter-spacing: 0.04em;
+}
+
+.stat-block strong {
+  display: block;
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1;
+  margin-bottom: 2px;
+}
+
+/* ── LEGEND ── */
+.legend {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.ldot {
+  width: 10px; height: 10px;
+  border-radius: 1px;
+  flex-shrink: 0;
+}
+.ldot-pick { background: var(--ink); }
+.ldot-core { background: var(--blue); }
+.ldot-extra { background: var(--green); }
+
+/* ── CONTROLS ── */
+.controls {
+  display: flex;
+  gap: 0;
+  flex-wrap: wrap;
+  margin-bottom: 2.5rem;
+  border: 1px solid var(--border-dark);
+  width: fit-content;
+}
+
+.filter-btn {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 7px 18px;
+  border: none;
+  border-right: 1px solid var(--border-dark);
+  background: var(--surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.1s;
+}
+.filter-btn:last-child { border-right: none; }
+.filter-btn:hover { background: var(--surface2); color: var(--ink); }
+.filter-btn.active {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+/* ── SEMESTER LABEL ── */
+.sem-heading {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  padding: 0.5rem 0 1rem;
+  border-top: 1px solid var(--border);
+  margin-top: 2rem;
+}
+.sem-heading:first-of-type { margin-top: 0; border-top: none; }
+
+/* ── GRID ── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border-dark);
+  margin-bottom: 1px;
+}
+
+/* ── CARD ── */
+.card {
+  background: var(--surface);
+  padding: 1.25rem 1.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  transition: background 0.1s;
+  position: relative;
+}
+
+.card:hover { background: var(--surface2); }
+.card.hidden { display: none; }
+
+.card-accent {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.accent-core { background: var(--blue); }
+.accent-pick { background: var(--ink); }
+
+.card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.card-sem {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.pill {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 1px;
+}
+.pill-core { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-border); }
+.pill-pick { background: var(--ink); color: var(--bg); }
+.pill-extra { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+
+.subject {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.3;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+/* PICK SECTION */
+.section-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 0.4rem;
+  margin-top: 1rem;
+}
+.section-label:first-of-type { margin-top: 0; }
+
+.pick-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.4;
+  margin-bottom: 3px;
+}
+
+.pick-author {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text-dim);
+  letter-spacing: 0.03em;
+  margin-bottom: 0.6rem;
+}
+
+.pick-why {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.7;
+  padding: 8px 10px;
+  background: var(--surface2);
+  border-left: 2px solid var(--border-dark);
+}
+
+.pick-why a {
+  font-weight: 500;
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 2px dotted var(--border-dark);
+}
+
+.pick-why a:hover {
+  border-bottom-color: var(--ink);
+}
+
+/* OFFICIAL LIST */
+.official-list {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px dashed var(--border);
+}
+
+.official-book {
+  display: flex;
+  gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--border);
+  align-items: flex-start;
+}
+.official-book:last-child { border-bottom: none; }
+
+.book-num {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text-dim);
+  min-width: 14px;
+  padding-top: 1px;
+}
+
+.book-info { flex: 1; }
+
+.book-name {
+  font-size: 11px;
+  color: var(--text);
+  line-height: 1.4;
+  font-weight: 400;
+}
+
+.book-name.is-pick {
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.book-by {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text-dim);
+  margin-top: 1px;
+}
+
+.pick-badge {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 1px 5px;
+  background: var(--ink);
+  color: var(--bg);
+  border-radius: 1px;
+  white-space: nowrap;
+  margin-top: 2px;
+  align-self: flex-start;
+}
+
+.extra-badge {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 1px 5px;
+  background: var(--green-bg);
+  color: var(--green);
+  border: 1px solid var(--green-border);
+  border-radius: 1px;
+  white-space: nowrap;
+  margin-top: 2px;
+  align-self: flex-start;
+}
+
+/* SUPPLEMENT */
+.supplement-block {
+  margin-top: 0.75rem;
+  padding: 8px 10px;
+  background: var(--amber-bg);
+  border: 1px solid var(--amber-border);
+  border-radius: 1px;
+}
+
+.supplement-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 4px;
+}
+
+.supplement-item {
+  font-size: 11px;
+  color: var(--amber);
+  line-height: 1.6;
+}
+
+/* OUTSIDE REC */
+.outside-block {
+  margin-top: 0.75rem;
+  padding: 8px 10px;
+  background: var(--green-bg);
+  border: 1px solid var(--green-border);
+  border-radius: 1px;
+}
+
+.outside-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--green);
+  margin-bottom: 4px;
+}
+
+.outside-item {
+  font-size: 11px;
+  color: var(--green);
+  line-height: 1.6;
+}
+
+/* FOOTER */
+footer {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid var(--ink);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 0.06em;
+}
+
+@media (max-width: 640px) {
+  header { grid-template-columns: 1fr; }
+  .header-stats { text-align: left; }
+  .grid { grid-template-columns: 1fr; }
+  body { padding: 1.5rem 1rem 4rem; }
+  .controls { width: 100%; }
+  .filter-btn { flex: 1; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <div class="header-left">
+    <div class="site-tag">5pyD3R · NITJ · M.Tech Information Security</div>
+    <h1>Masters <em>Book</em> Library</h1>
+    <p class="header-desc">Complete reference for all 12 subjects. Each card shows the official syllabus booklist with the curated pick marked, plus outside recommendations where the list falls short.</p>
+  </div>
+  <div class="header-stats">
+    <div class="stat-block"><strong>12</strong> subjects</div>
+    <div class="stat-block"><strong>4</strong> electives picked</div>
+  </div>
+</header>
+
+<div class="legend">
+  <div class="legend-item"><div class="ldot ldot-core"></div> Core subject</div>
+  <div class="legend-item"><div class="ldot ldot-pick"></div> Elective (your pick)</div>
+  <div class="legend-item"><div class="ldot ldot-extra"></div> Outside rec (beyond syllabus)</div>
+</div>
+
+<div class="controls">
+  <button class="filter-btn active" data-filter="all">All</button>
+  <button class="filter-btn" data-filter="sem1">Sem 1</button>
+  <button class="filter-btn" data-filter="sem2">Sem 2</button>
+  <button class="filter-btn" data-filter="elective">Electives</button>
+  <button class="filter-btn" data-filter="core">Core only</button>
+</div>
+
+<div class="grid" id="grid">
+
+  <!-- ── SEM 1 CORE ── -->
+
+  <div class="card" data-sem="sem1" data-type="core">
+    <div class="card-accent accent-core"></div>
+    <div class="card-meta">
+      <span class="card-sem">Semester 1</span>
+      <span class="pill pill-core">Core</span>
+    </div>
+    <div class="subject">Algorithm Design & Analysis</div>
+
+    <div class="section-label">Your pick</div>
+    <div class="pick-title">Grokking Algorithms</div>
+    <div class="pick-author">Aditya Bhargava · Simon & Schuster · 2024</div>
+    <div class="pick-why">Builds visual intuition for every paradigm before touching math. Read this first, then use CLRS selectively by topic as a reference — not cover to cover.</div>
+    <div class="supplement-block">
+      <div class="supplement-label">Supplement (Video Lectures)</div>
+      <div class="supplement-item"><a href="https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/" target="_blank" rel="noopener noreferrer" style="color:inherit; text-decoration:underline; text-decoration-style:dotted; text-underline-offset:3px;">Foundation</a> & <a href="https://ocw.mit.edu/courses/6-046j-design-and-analysis-of-algorithms-spring-2015/" target="_blank" rel="noopener noreferrer" style="color:inherit; text-decoration:underline; text-decoration-style:dotted; text-underline-offset:3px;">Intermidiate</a> — MIT OpenCourseWare · Erik Demaine </div>
+    </div>
+
+    <div class="official-list">
+      <div class="section-label">Official syllabus list</div>
+      <div class="official-book">
+        <span class="book-num">1</span>
+        <div class="book-info">
+          <div class="book-name">Data Structures and Algorithm Analysis in C++, 4th ed.</div>
+          <div class="book-by">Mark Allen Weiss · Pearson · 2013</div>
+        </div>
+      </div>
+      <div class="official-book">
+        <span class="book-num">2</span>
+        <div class="book-info">
+          <div class="book-name">Data Structures and Algorithms in C++, 4th ed.</div>
+          <div class="book-by">Adam Drozdek · Cengage · 2012</div>
+        </div>
+      </div>
+      <div class="official-book">
+        <span class="book-num">3</span>
+        <div class="book-info">
+          <div class="book-name is-pick">Introduction to Algorithms, 4th ed.</div>
+          <div class="book-by">Cormen, Leiserson, Rivest, Stein · MIT Press · 2022</div>
+        </div>
+        <span class="pick-badge">ref</span>
+      </div>
+      <div class="official-book">
+        <span class="book-num">4</span>
+        <div class="book-info">
+          <div class="book-name">Design and Analysis of Algorithms</div>
+          <div class="book-by">S. Sridhar · Oxford · 2022</div>
+        </div>
+      </div>
+      <div class="official-book">
+        <span class="book-num">5</span>
+        <div class="book-info">
+          <div class="book-name is-pick">Grokking Algorithms</div>
+          <div class="book-by">Aditya Bhargava · Simon & Schuster · 2024</div>
+        </div>
+        <span class="pick-badge">pick</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-sem="sem1" data-type="core">
+    <div class="card-accent accent-core"></div>
+    <div class="card-meta">
+      <span class="card-sem">Semester 1</span>
+      <span class="pill pill-core">Core</span>
+    </div>
+    <div class="subject">Probability & Statistics</div>
+
+    <div class="section-label">Your pick</div>
+    <div class="pick-title">Mathematical Statistics and Data Analysis, 4th ed.</div>
+    <div class="pick-author">John A. Rice · Cengage · 2020</div>
+    <div class="pick-why">Builds statistical reasoning from first principles — the why behind each distribution and test, not just formulas. Treat this as a pass-and-move-on subject relative to your career goals but understand it properly.
+    </div>
+    <div class="supplement-block">
+      <div class="supplement-label">Supplement (advanced math)</div>
+      <div class="supplement-item"><a href="https://www.mit.edu/~jnt/prob.html" target="_blank" rel="noopener noreferrer" style="color:inherit; text-decoration:underline; text-decoration-style:dotted; text-underline-offset:3px;">MIT OpenCourseWare</a> — Probabilistic Systems ·  John N. Tsitsiklis </div>
+    </div>
+
+    <div class="official-list">
+      <div class="section-label">Official syllabus list</div>
+      <div class="official-book">
+        <span class="book-num">1</span>
+        <div class="book-info">
+          <div class="book-name">Statistical Foundations for Data Science</div>
+          <div class="book-by">Fan, Li, Zhang, Zou · CRC Press · 2020</div>
+        </div>
+      </div>
+      <div class="official-book">
+        <span class="book-num">2</span>
+        <div class="book-info">
+          <div class="book-name">An Introduction to Statistical Learning with Applications in Python</div>
+          <div class="book-by">James, Witten, Hastie, Tibshirani · Springer · 2023</div>
+        </div>
+      </div>
+      <div class="official-book">
+        <span class="book-num">3</span>
+        <div class="book-info">
+          <div class="book-name is-pick">Mathematical Statistics and Data Analysis, 4th ed.</div>
+          <div class="book-by">John A. Rice · Cengage · 2020</div>
+        </div>
+        <span class="pick-badge">pick</span>
+      </div>
+      <div class="official-book">
+        <span class="book-num">4</span>
+        <div class="book-info">
+          <div class="book-name">Probability and Statistics for Data Science</div>
+          <div class="book-by">Carlos Fernandez-Granda · NYU · 2017</div>
+        </div>
+      </div>
+      <div class="official-book">
+        <span class="book-num">5</span>
+        <div class="book-info">
+          <div class="book-name">Foundations of Data Science</div>
+          <div class="book-by">Blum, Hopcroft, Kannan · Cambridge · 2020</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-sem="sem1" data-type="core">
+    <div class="card-accent accent-core"></div>
+    <div class="card-meta">
+      <span class="card-sem">Semester 1</span>
+      <span class="pill pill-core">Core</span>
+    </div>
+    <div class="subject">Cryptography</div>
+
+    <div class="section-label">Your pick</div>
+    <div class="pick-title">Cryptography and Network Security, 8th ed.</div>
+    <div class="pick-author">William Stallings · Pearson · 2024</div>
+    <div class="pick-why">Explains design rationale behind every primitive — why Feistel works, why RSA is structured that way, why certain modes fail. The only book on the list that builds the mental model rather than just cataloguing algorithms.</div>
+
+    <div class="supplement-block">
+      <div class="supplement-label">Supplement (deeper math)</div>
+      <div class="supplement-item">Boneh & Shoup — A Graduate Course in Applied Cryptography · free at toc.cryptobook.us</div>
+    </div>
+
+    <div class="official-list">
+      <div class="section-label">Official syllabus list</div>
+      <div class="official-book">
+        <span class="book-num">1</span>
+        <div class="book-info">
+          <div class="book-name is-pick">Cryptography and Network Security, 8th ed.</div>
+          <div class="book-by">William Stallings · Pearson · 2024</div>
+        </div>
+        <span class="pick-badge">pick</span>
+      </div>
+      <div class="official-book">
+        <span class="book-num">2</span>
+        <div class="book-info">
+          <div class="book-name">Cryptography and Network Security, 3rd ed.</div>
+          <div class="book-by">Forouzan & Mukhopadhyay · TMH · 2015</div>
+        </div>
+      </div>
+      <div class="official-book">
+        <span class="book-num">3</span>
+        <div class="book-info">
+          <div class="book-name">Cryptography and Network Security</div>
+          <div class="book-by">Prakash C. Gupta · PHI · 2015</div>
+        </div>
+      </div>
+      <div class="official-book">
+        <span class="book-num">4</span>
+        <div class="book-info">
+          <div class="book-name">A Graduate Course in Applied Cryptography</div>
+          <div class="book-by">Boneh & Shoup · 2023 · free</div>
+        </div>
+      </div>
+      <div class="official-book">
+        <span class="book-num">5</span>
+        <div class="book-info">
+          <div class="book-name">Applied Cryptography</div>
+          <div class="book-by">Bruce Schneier · Wiley · 1995</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-sem="sem1" data-type="core">
+    <div class="card-accent accent-core"></div>
+    <div class="card-meta">
+      <span class="card-sem">Semester 1</span>
+      <span class="pill pill-core">Core</span>
+    </div>
+    <div class="subject">Cyber & Digital Forensics</div>
+
+    <div class="section-label">Your pick</div>
+    <div class="pick-title">Incident Response and Computer Forensics</div>
+    <div class="pick-author">Mandia, Prosise, Pepe · Tata McGraw-Hill · 2006</div>
+    <div class="pick-why">Frames forensics around attacker behaviour first, then evidence. Teaches the investigative mindset rather than just tool walkthroughs. Knowing what evidence you leave behind makes you a better red teamer.</div>
+
+    <div class="official-list">
+      <div class="section-label">Official syllabus list</div>
+      <div class="official-book">
+        <span class="book-num">1</span>
+        <div class="book-info">
+          <div class="book-name">Computer Forensics and Investigations</div>
+          <div class="book-by">Nelson, Phillips, Enfinger, Steuart · Cengage · 2020</div>
+        </div>
+      </div>
+      <div class="official-book">
+        <span class="book-num">2</span>
+        <div class="book-info">
+          <div class="book-name is-pick">Incident Response and Computer Forensics</div>
+          <div class="book-by">Mandia, Prosise, Pepe · Tata McGraw-Hill · 2006</div>
+        </div>
+        <span class="pick-badge">pick</span>
+      </div>
+      <div class="official-book">
+        <span class="book-num">3</span>
+        <div class="book-info">
+          <div class="book-name">Software Forensics</div>
+          <div class="book-by">Robert M. Slade · Tata McGraw-Hill · 2005</div>
+        </div>
+      </div>
+      <div class="official-book">
+        <span class="book-num">4</span>
+        <div class="book-info">
+          <div class="book-name">Cybercrime</div>
+          <div class="book-by">Schell & Martin · ABC-CLIO · 2004</div>
+        </div>
+      </div>
+      <div class="official-book">
+        <span class="book-num">5</span>
+        <div class="book-info">
+          <div class="book-name">Understanding Forensics in IT</div>
+          <div class="book-by">NIIT Ltd. · 2005</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SEM 1 ELECTIVES ── -->
+
+  <div class="card" data-sem="sem1" data-type="elective picked">
+    <div class="card-accent accent-pick"></div>
+    <div class="card-meta">
+      <span class="card-sem">Semester 1 · Elective</span>
+      <span class="pill pill-pick">Your pick</span>
+    </div>
+    <div class="subject">Web Application Security</div>
+
+    <div class="section-label">Your pick</div>
+    <div class="pick-title">Web Application Security: Exploitation and Countermeasures, 2nd ed.</div>
+    <div class="pick-author">Andrew Hoffman · O'Reilly · 2023</div>
+    <div class="pick-why">Offensive-first. Builds the mental model of how web apps fail rather than just listing vulns. Pairs directly with PortSwigger Academy labs which are already in your Trails stack.</div>
+
+    <div class="outside-block">
+      <div class="outside-label">Outside rec (practical lab)</div>
+      <div class="outside-item">PortSwigger Web Security Academy — free, best practical complement, use Caido as proxy</div>
+    </div>
+
+    <div class="official-list">
+      <div class="section-label">Official syllabus list</div>
+      <div class="official-book">
+        <span class="book-num">1</span>
+        <div class="book-info">
+          <div class="book-name">Web Security for Developers</div>
+          <div class="book-by">Malcolm McDonald · No Starch · 2020</div>
+        </div>
+      </div>
+      <div class="official-book">
+        <span class="book-num">2</span>
+        <div class="book-info">
+          <div class="book-name is-pick">Web Application Security: Exploitation and Countermeasures, 2nd ed.</div>
+          <div class="book-by">Andrew Hoffman · O'Reilly · 2023</div>
+        </div>
+        <span class="pick-badge">pick</span>
+      </div>
+      <div class="official-book">
+        <span class="book-num">3</span>
+        <div class="book-info">
+          <div class="book-name">Secure Coding in C and C++, 2nd ed.</div>
+          <div class="book-by">Robert Seacord · Addison-Wesley · 2013</div>
+        </div>
+      </div>
+      <div class="official-book">
+        <span class="book-num">4</span>
+        <div class="book-info">
+          <div class="book-name">Java Coding Guidelines</div>
+          <div class="book-by">Long, Mohindra et al. · Addison-Wesley · 2014</div>
+        </div>
+      </div>
+      <div class="official-book">
+        <span class="book-num">5</span>
+        <div class="book-info">
+          <div class="book-name">Security Engineering, 3rd ed.</div>
+          <div class="book-by">Ross Anderson · Wiley · 2020</div>
+        </div>
+      </div>
+      <div class="official-book">
+        <span class="book-num">6</span>
+        <div class="book-info">
+          <div class="book-name">Computer Security — A Hands-on Approach</div>
+          <div class="book-by">Wenliang Du · CreateSpace · 2017</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-sem="sem1" data-type="elective picked">
+    <div class="card-accent accent-pick"></div>
+    <div class="card-meta">
+      <span class="card-sem">Semester 1 · Elective</span>
+      <span class="pill pill-pick">Your pick</span>
+    </div>
+    <div class="subject">Cyber Threat Intelligence</div>
+
+    <div class="section-label">Your pick (least bad on weak list)</div>
+    <div class="pick-title">Definitive Guide to Cyber Threat Intelligence</div>
+    <div class="pick-author">Friedman & Bouchard · CyberEdge Group · 2015</div>
+    <div class="pick-why">Only book on the list with a structured operational mental model — adversary profiling, intelligence lifecycle, converting raw data into actionable knowledge. Practitioners, not academics. The rest of the list is genuinely weak.</div>
+
+    <div class="outside-block">
+      <div class="outside-label">Outside recs (read these — they're the real CTI education)</div>
+      <div class="outside-item">① Hutchins, Cloppert & Amin — Intelligence-Driven Computer Network Defense (Kill Chain paper) · free PDF<br>② Sanders & Smith — Applied Network Security Monitoring · No Starch · 2013<br>③ Mandiant M-Trends Annual Reports · free · real-world adversary TTPs</div>
+    </div>
+
+    <div class="official-list">
+      <div class="section-label">Official syllabus list</div>
+      <div class="official-book">
+        <span class="book-num">1</span>
+        <div class="book-info">
+          <div class="book-name is-pick">Definitive Guide to Cyber Threat Intelligence</div>
+          <div class="book-by">Friedman & Bouchard · CyberEdge · 2015</div>
+        </div>
+        <span class="pick-badge">pick</span>
+      </div>
+      <div class="official-book">
+        <span class="book-num">2</span>
+        <div class="book-info">
+          <div class="book-name">How to Define and Build an Effective CTI Capability</div>
+          <div class="book-by">Henry Dalziel · Syngress · 2014</div>
+        </div>
+      </div>
+      <div class="official-book">
+        <span class="book-num">3</span>
+        <div class="book-info">
+          <div class="book-name">Darkweb Cyber Threat Intelligence Mining</div>
+          <div class="book-by">Robertson, Diab et al. · Cambridge · 2017</div>
+        </div>
+      </div>
+      <div class="official-book">
+        <span class="book-num">4</span>
+        <div class="book-info">
+          <div class="book-name">The Cyber Threat</div>
+          <div class="book-by">Bob Gourley · CreateSpace · 2014</div>
+        </div>
+      </div>
+      <div class="official-book">
+        <span class="book-num">5</span>
+        <div class="book-info">
+          <div class="book-name">Cyber Threat Intelligence: Challenges and Opportunities (paper)</div>
+          <div class="book-by">Conti, Dargahi, Dehghantanha · 2018</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SEM 2 CORE ── -->
+
+  <div class="card" data-sem="sem2" data-type="core">
+    <div class="card-accent accent-core"></div>
+    <div class="card-meta">
+      <span class="card-sem">Semester 2</span>
+      <span class="pill pill-core">Core</span>
+    </div>
+    <div class="subject">Machine Learning</div>
+
+    <div class="section-label">Your pick</div>
+    <div class="pick-title">Machine Learning</div>
+    <div class="pick-author">Tom M. Mitchell · McGraw-Hill · 1997</div>
+    <div class="pick-why">Old but unmatched for building the conceptual skeleton. Explains why each algorithm thinks the way it does — decision trees, Bayesian learning, RL — not just how to run them. Understanding ML matters for red teaming because you're working against ML-based EDR. <a href="https://www.cs.cmu.edu/~tom/mlbook.html" target="_blank" rel="noopener noreferrer"> Official Site </a>
+    </div>
+
+    <div class="supplement-block">
+      <div class="supplement-label">Supplement (RL chapters)</div>
+      <div class="supplement-item">Sutton & Barto — Reinforcement Learning: An Introduction · free at incompleteideas.net</div>
+    </div>
+
+    <div class="official-list">
+      <div class="section-label">Official syllabus list</div>
+      <div class="official-book">
+        <span class="book-num">1</span>
+        <div class="book-info">
+          <div class="book-name is-pick">Machine Learning</div>
+          <div class="book-by">Tom M. Mitchell · McGraw-Hill · 1997</div>
+        </div>
+        <span class="pick-badge">pick</span>
+      </div>
+      <div class="official-book">
+        <span class="book-num">2</span>
+        <div class="book-info">
+          <div class="book-name">Foundations of Machine Learning, 2nd ed.</div>
+          <div class="book-by">Mohri, Rostamizadeh, Talwalkar · MIT Press · 2018</div>
+        </div>
+      </div>
+      <div class="official-book">
+        <span class="book-num">3</span>
+        <div class="book-info">
+          <div class="book-name">Data Mining: Practical ML Tools and Techniques, 5th ed.</div>
+          <div class="book-by">Witten, Frank, Hall, Pal · Morgan Kaufmann · 2024</div>
+        </div>
+      </div>
+      <div class="official-book">
+        <span class="book-num">4</span>
+        <div class="book-info">
+          <div class="book-name">Reinforcement Learning: An Introduction</div>
+          <div class="book-by">Sutton & Barto · SIAM · 2021</div>
+        </div>
+      </div>
+      <div class="official-book">
+        <span class="book-num">5</span>
+        <div class="book-info">
+          <div class="book-name">Mathematics for Machine Learning</div>
+          <div class="book-by">Deisenroth, Faisal, Ong · Cambridge · 2020</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-sem="sem2" data-type="core">
+    <div class="card-accent accent-core"></div>
+    <div class="card-meta">
+      <span class="card-sem">Semester 2</span>
+      <span class="pill pill-core">Core</span>
+    </div>
+    <div class="subject">Ethical Hacking</div>
+
+    <div class="section-label">Your pick</div>
+    <div class="pick-title">Gray Hat Hacking: The Ethical Hacker's Handbook, 6th ed.</div>
+    <div class="pick-author">Harper, Linn, Sims · McGraw-Hill · 2022</div>
+    <div class="pick-why">Full attack lifecycle with technical depth and strategic thinking at every phase. Only book on the list worth reading end-to-end. Already aligns with your Offsec Trails stack.</div>
+
+    <div class="supplement-block">
+      <div class="supplement-label">Supplement (tool reference)</div>
+      <div class="supplement-item">Kennedy et al. — Metasploit: The Penetration Tester's Guide · No Starch · 2011</div>
+    </div>
+
+    <div class="official-list">
+      <div class="section-label">Official syllabus list</div>
+      <div class="official-book">
+        <span class="book-num">1</span>
+        <div class="book-info">
+          <div class="book-name is-pick">Gray Hat Hacking: The Ethical Hacker's Handbook, 6th ed.</div>
+          <div class="book-by">Harper, Linn, Sims · McGraw-Hill · 2022</div>
+        </div>
+        <span class="pick-badge">pick</span>
+      </div>
+      <div class="official-book">
+        <span class="book-num">2</span>
+        <div class="book-info">
+          <div class="book-name">Metasploit: The Penetration Tester's Guide</div>
+          <div class="book-by">Kennedy, O'Gorman, Kearns, Aharoni · No Starch · 2011</div>
+        </div>
+      </div>
+      <div class="official-book">
+        <span class="book-num">3</span>
+        <div class="book-info">
+          <div class="book-name">The Basics of Hacking and Penetration Testing</div>
+          <div class="book-by">Patrick Engebretson · Elsevier · 2011</div>
+        </div>
+      </div>
+      <div class="official-book">
+        <span class="book-num">4</span>
+        <div class="book-info">
+          <div class="book-name">Hacking Exposed Web 2.0</div>
+          <div class="book-by">Annings, Dwivedi, Lackey · McGraw-Hill</div>
+        </div>
+      </div>
+      <div class="official-book">
+        <span class="book-num">5</span>
+        <div class="book-info">
+          <div class="book-name">CEH Official Certified Ethical Hacking Review Guide</div>
+          <div class="book-by">Wiley India</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-sem="sem2" data-type="core">
+    <div class="card-accent accent-core"></div>
+    <div class="card-meta">
+      <span class="card-sem">Semester 2</span>
+      <span class="pill pill-core">Core</span>
+    </div>
+    <div class="subject">Distributed Systems</div>
+
+    <div class="section-label">Your pick</div>
+    <div class="pick-title">Distributed Systems: Principles and Paradigms, 4th ed.</div>
+    <div class="pick-author">A.S. Tanenbaum · Prentice Hall · 2025</div>
+    <div class="pick-why">The Keith Ross equivalent for distributed systems — narrates it as a connected set of problems and tradeoffs, not isolated topics. Red team engagements increasingly target distributed infra and cloud architectures; this builds the model you need to understand where they break.</div>
+
+    <div class="official-list">
+      <div class="section-label">Official syllabus list</div>
+      <div class="official-book">
+        <span class="book-num">1</span>
+        <div class="book-info">
+          <div class="book-name">Distributed Systems: Concepts and Design, 5th ed.</div>
+          <div class="book-by">Coulouris, Dollimore, Kindberg, Blair · Pearson · 2011</div>
+        </div>
+      </div>
+      <div class="official-book">
+        <span class="book-num">2</span>
+        <div class="book-info">
+          <div class="book-name is-pick">Distributed Systems: Principles and Paradigms, 4th ed.</div>
+          <div class="book-by">A.S. Tanenbaum · Prentice Hall · 2025</div>
+        </div>
+        <span class="pick-badge">pick</span>
+      </div>
+      <div class="official-book">
+        <span class="book-num">3</span>
+        <div class="book-info">
+          <div class="book-name">Distributed Operating Systems and Algorithm Analysis</div>
+          <div class="book-by">Chow & Johnson · Addison-Wesley · 2009</div>
+        </div>
+      </div>
+      <div class="official-book">
+        <span class="book-num">4</span>
+        <div class="book-info">
+          <div class="book-name">Introduction to Distributed Algorithms, 2nd ed.</div>
+          <div class="book-by">Gerald Tel · Cambridge · 2000</div>
+        </div>
+      </div>
+      <div class="official-book">
+        <span class="book-num">5</span>
+        <div class="book-info">
+          <div class="book-name">Distributed Algorithms</div>
+          <div class="book-by">Nancy Lynch · Morgan Kaufmann · 2000</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-sem="sem2" data-type="core">
+    <div class="card-accent accent-core"></div>
+    <div class="card-meta">
+      <span class="card-sem">Semester 2</span>
+      <span class="pill pill-core">Core</span>
+    </div>
+    <div class="subject">Cyber Physical System Security</div>
+
+    <div class="section-label">Your pick (just pass it)</div>
+    <div class="pick-title">Principles of Cyber-Physical Systems</div>
+    <div class="pick-author">Rajeev Alur · MIT Press · 2015</div>
+    <div class="pick-why">Most rigorous from a systems thinking perspective. Low career relevance unless you specifically target ICS/SCADA roles (Dragos, Claroty). Treat as pass-and-move-on. For security content use NIST CSF 2.0 directly as reference — it's free and authoritative.</div>
+
+    <div class="outside-block">
+      <div class="outside-label">Outside ref</div>
+      <div class="outside-item">NIST Cybersecurity Framework 2.0 · free at nist.gov/cyberframework</div>
+    </div>
+
+    <div class="official-list">
+      <div class="section-label">Official syllabus list</div>
+      <div class="official-book">
+        <span class="book-num">1</span>
+        <div class="book-info">
+          <div class="book-name">Applied Cyber-Physical Systems</div>
+          <div class="book-by">Suh, Tanik, Carbone, Eroglu · Springer · 2014</div>
+        </div>
+      </div>
+      <div class="official-book">
+        <span class="book-num">2</span>
+        <div class="book-info">
+          <div class="book-name is-pick">Principles of Cyber-Physical Systems</div>
+          <div class="book-by">Rajeev Alur · MIT Press · 2015</div>
+        </div>
+        <span class="pick-badge">pick</span>
+      </div>
+      <div class="official-book">
+        <span class="book-num">3</span>
+        <div class="book-info">
+          <div class="book-name">Industrial Cloud-Based Cyber-Physical Systems</div>
+          <div class="book-by">Colombo et al. · Springer · 2014</div>
+        </div>
+      </div>
+      <div class="official-book">
+        <span class="book-num">4</span>
+        <div class="book-info">
+          <div class="book-name">Handbook on Securing Cyber-Physical Critical Infrastructure</div>
+          <div class="book-by">Das, Kant, Zhang · Morgan Kaufmann · 2012</div>
+        </div>
+      </div>
+      <div class="official-book">
+        <span class="book-num">5</span>
+        <div class="book-info">
+          <div class="book-name">Security and Resilience of Cyber Physical Systems</div>
+          <div class="book-by">Kumar, Behal et al. · CRC Press · 2022</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SEM 2 ELECTIVES ── -->
+
+  <div class="card" data-sem="sem2" data-type="elective picked">
+    <div class="card-accent accent-pick"></div>
+    <div class="card-meta">
+      <span class="card-sem">Semester 2 · Elective</span>
+      <span class="pill pill-pick">Your pick</span>
+    </div>
+    <div class="subject">Malware Analysis</div>
+
+    <div class="section-label">Your pick</div>
+    <div class="pick-title">Practical Malware Analysis</div>
+    <div class="pick-author">Sikorski & Honig · No Starch Press · 2012</div>
+    <div class="pick-why">Not even close — the best book on this list by a margin. Hands-on, assumes competence, teaches you to think like a reverse engineer from page one. x86 disassembly, static/dynamic analysis, anti-RE techniques. Read cover to cover. One of the best infosec books period.</div>
+
+    <div class="outside-block">
+      <div class="outside-label">Outside rec (deeper RE)</div>
+      <div class="outside-item">Dang, Gazet, Bachaalany — Practical Reverse Engineering · Wiley · 2014<br>Eilam — Reversing: Secrets of Reverse Engineering · Wiley · 2005</div>
+    </div>
+
+    <div class="official-list">
+      <div class="section-label">Official syllabus list</div>
+      <div class="official-book">
+        <span class="book-num">1</span>
+        <div class="book-info">
+          <div class="book-name is-pick">Practical Malware Analysis</div>
+          <div class="book-by">Sikorski & Honig · No Starch · 2012</div>
+        </div>
+        <span class="pick-badge">pick</span>
+      </div>
+      <div class="official-book">
+        <span class="book-num">2</span>
+        <div class="book-info">
+          <div class="book-name">Practical Reverse Engineering</div>
+          <div class="book-by">Dang, Gazet, Bachaalany · Wiley · 2014</div>
+        </div>
+      </div>
+      <div class="official-book">
+        <span class="book-num">3</span>
+        <div class="book-info">
+          <div class="book-name">The Rootkit Arsenal, 2nd ed.</div>
+          <div class="book-by">Bill Blunden · Jones & Bartlett · 2012</div>
+        </div>
+      </div>
+      <div class="official-book">
+        <span class="book-num">4</span>
+        <div class="book-info">
+          <div class="book-name">Rootkits: Subverting the Windows Kernel</div>
+          <div class="book-by">Butler & Hoglund · Addison-Wesley · 2005</div>
+        </div>
+      </div>
+      <div class="official-book">
+        <span class="book-num">5</span>
+        <div class="book-info">
+          <div class="book-name">Reversing: Secrets of Reverse Engineering</div>
+          <div class="book-by">Eldad Eilam · Wiley · 2005</div>
+        </div>
+      </div>
+      <div class="official-book">
+        <span class="book-num">6</span>
+        <div class="book-info">
+          <div class="book-name">Malware Analysis and Detection Engineering</div>
+          <div class="book-by">Mohanta & Saldanha · Apress · 2020</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-sem="sem2" data-type="elective picked">
+    <div class="card-accent accent-pick"></div>
+    <div class="card-meta">
+      <span class="card-sem">Semester 2 · Elective</span>
+      <span class="pill pill-pick">Your pick</span>
+    </div>
+    <div class="subject">Advanced Penetration Testing & Red Teaming</div>
+
+    <div class="section-label">Your pick (primary — network)</div>
+    <div class="pick-title">Network Security Assessment, 3rd ed.</div>
+    <div class="pick-author">Chris McNab · O'Reilly · 2016</div>
+    <div class="pick-why">Best mental model for network pentest methodology on the list — threat landscape, recon, vuln modelling, network mapping. Structured around how you actually approach an engagement.</div>
+
+    <div class="section-label" style="margin-top:0.75rem;">Your pick (secondary — web)</div>
+    <div class="pick-title">The Web Application Hacker's Handbook, 2nd ed.</div>
+    <div class="pick-author">Stuttard & Pinto · Wiley · 2011</div>
+    <div class="pick-why">Fills the web pentest depth gap. Covers attack and defence from both sides — still the reference for understanding how web app exploitation actually works at the mechanism level.</div>
+
+    <div class="outside-block">
+      <div class="outside-label">Outside rec (fills red team ops gap — critical)</div>
+      <div class="outside-item">Joe Vest — Red Team Development and Operations · free PDF on GitHub<br>Covers C2 infrastructure, adversary emulation, rules of engagement — nothing on the syllabus list touches this.</div>
+    </div>
+
+    <div class="official-list">
+      <div class="section-label">Official syllabus list</div>
+      <div class="official-book">
+        <span class="book-num">1</span>
+        <div class="book-info">
+          <div class="book-name">Digital Watermarking and Steganography (listed in error)</div>
+          <div class="book-by">Shih · CRC Press · 2017</div>
+        </div>
+      </div>
+      <div class="official-book">
+        <span class="book-num">2</span>
+        <div class="book-info">
+          <div class="book-name is-pick">Network Security Assessment, 3rd ed.</div>
+          <div class="book-by">Chris McNab · O'Reilly · 2016</div>
+        </div>
+        <span class="pick-badge">pick 1</span>
+      </div>
+      <div class="official-book">
+        <span class="book-num">3</span>
+        <div class="book-info">
+          <div class="book-name is-pick">The Web Application Hacker's Handbook, 2nd ed.</div>
+          <div class="book-by">Stuttard & Pinto · Wiley · 2011</div>
+        </div>
+        <span class="pick-badge">pick 2</span>
+      </div>
+      <div class="official-book">
+        <span class="book-num">4</span>
+        <div class="book-info">
+          <div class="book-name">Pentesting APIs</div>
+          <div class="book-by">Maurício Harley · Packt · 2024</div>
+        </div>
+      </div>
+      <div class="official-book">
+        <span class="book-num">5</span>
+        <div class="book-info">
+          <div class="book-name">Practical IoT Hacking</div>
+          <div class="book-by">Chantzis et al. · No Starch · 2021</div>
+        </div>
+      </div>
+      <div class="official-book">
+        <span class="book-num">6</span>
+        <div class="book-info">
+          <div class="book-name">Practical Cloud Security, 2nd ed.</div>
+          <div class="book-by">Chris Dotson · O'Reilly · 2023</div>
+        </div>
+      </div>
+      <div class="official-book">
+        <span class="book-num">7</span>
+        <div class="book-info">
+          <div class="book-name">Advanced Penetration Testing, 2nd ed.</div>
+          <div class="book-by">Philip Allen · Wiley · 2022</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <span>5pyD3R · NITJ M.Tech InfoSec · Complete Library</span>
+  <span>12 subjects · 13 picks · 8 outside recs</span>
+</footer>
+
+</div>
+
+<script>
+const btns = document.querySelectorAll('.filter-btn');
+const cards = document.querySelectorAll('.card');
+
+btns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    btns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const f = btn.dataset.filter;
+    cards.forEach(card => {
+      if (f === 'all') {
+        card.classList.remove('hidden');
+      } else if (f === 'elective') {
+        card.classList.toggle('hidden', !card.dataset.type.includes('elective'));
+      } else if (f === 'core') {
+        card.classList.toggle('hidden', !card.dataset.type.includes('core') || card.dataset.type.includes('elective'));
+      } else {
+        card.classList.toggle('hidden', card.dataset.sem !== f);
+      }
+    });
+  });
+});
+</script>
+</body>
+</html>
