@@ -7,5 +7,14 @@
     "type": "resource",
     "tags": ["networking", "TCP/IP", "OSI", "protocols"],
     "status": "live"
+  },
+  {
+    "title": "Masters Book Library",
+    "slug": "mtech-infosec-lib",
+    "description": "Curated book picks for NITJ M.Tech InfoSec — full syllabus lists with picks and outside recs.",
+    "topic": "infosec",
+    "type": "resource",
+    "tags": ["infosec", "red-teaming", "cryptography", "malware-analysis", "penetration-testing"],
+    "status": "live"
   }
 ]
